@@ -13,11 +13,9 @@ class PredictWord extends StatefulWidget {
 }
 
 class _PredictWordState extends State<PredictWord> {
-  List<Widget> abc = List.generate(3, (index) => PredLetterGrid(letter: 'a'));
-  int leng = 3;
   @override
   Widget build(BuildContext context) {
-    return GridView.count(crossAxisCount: leng, children: abc);
+    return GridView.builder(crossAxisCount: , children: abc);
   }
 }
 
