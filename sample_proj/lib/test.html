@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<head>
+<title>stone paper and scissors</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<h1>lets play!</h1>
+<br>
+<br>
+<h1>Choose</h1>
+<div class="choices">
+<img src="1.png" class="1" alt="" height="50px" width="50px">
+<img src="2.jpg" class="2" alt="" height="50px" width="50px">
+<img src="3.jpg" class="3" alt="" height="50px" width="50px">
+</div>
+
+<div class="results">
+  <img src="ban.png" class="result1" alt="" height="100px" width="100px">
+  <img src="ban.png" class="result2" alt="" height="100px" width="100px">
+</div>
+
+<script>
+document.querySelector(".1").addEventListener("click",play1());
+document.querySelector(".2").addEventListener("click",play2());
+document.querySelector(".3").addEventListener("click",play3());
+function play1()
+{
+  document.querySelector(".result1").setAttribute("src","1.png");
+  var randomNumber=Math.floor(Math.random()*3+1);
+  document.querySelector(".result2").setAttribute("source",randomNumber+".png");
+}
+
+function play2()
+{
+  document.querySelector(".result1").setAttribute("src","2.png");
+  var randomNumber=Math.floor(Math.random()*3+1);
+  document.querySelector(".result2").setAttribute("src",randomNumber+".png");
+}
+
+function play3()
+{
+  document.querySelector(".result1").setAttribute("src","3.png");
+  var randomNumber=Math.floor(Math.random()*3+1);
+  document.querySelector(".result2").setAttribute("src",randomNumber+".png");
+}
+
+</script>
+</body>
+</html>

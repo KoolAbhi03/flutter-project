@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "166938801526",
+    "project_id": "flutter-brew-cafe",
+    "storage_bucket": "flutter-brew-cafe.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:166938801526:android:b4d15659de130356063657",
+        "android_client_info": {
+          "package_name": "com.kool_arena.brew_cafe"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "166938801526-1iae3tmck3so67rqmjld4m7btl6dehf9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDULHOVxdXDvsBwAfgJf_Ma1SzKxYJkfEw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "166938801526-1iae3tmck3so67rqmjld4m7btl6dehf9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
