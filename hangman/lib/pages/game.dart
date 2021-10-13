@@ -1,12 +1,17 @@
 // ignore_for_file: prefer_const_constructors, avoid_unnecessary_containers, prefer_const_literals_to_create_immutables, non_constant_identifier_names
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:hangman/components/letter.dart';
+import 'package:hangman/components/lives.dart';
 import 'package:hangman/components/predictWord.dart';
 import 'package:hangman/pages/home.dart';
+import 'dart:math';
 
 class Game extends StatefulWidget {
-  const Game({Key? key}) : super(key: key);
+  final level;
+  const Game({Key? key, required this.level}) : super(key: key);
 
   @override
   _GameState createState() => _GameState();
@@ -42,11 +47,41 @@ class _GameState extends State<Game> {
     'Z'
   ];
   List<bool> pressed = [];
-  int lives = 5;
+  List<String> EasyWords = [
+    'BOX',
+    'ROAD',
+    'PAINT',
+    'GAME',
+    'JUMP',
+    'THROW',
+    'MOBILE'
+  ];
+  List<String> MediumWords = [
+    'TELIVISION',
+    'MANAGER',
+    'GEOGRAPHY',
+    'POLITICS',
+    'JUGGLE',
+    'NATIVE',
+    'NEIGHBOUR'
+  ];
+  List<String> HardWords = [
+    'OR',
+    'KINKY',
+    'KNOB',
+    'SOCKET',
+    'CRYSTAL',
+    'SUSPENSE',
+    'MICROPHONE'
+  ];
+
+  int lives = 6;
   int hangstate = 0;
   bool gameOver = false;
+  bool win = false;
   int temp_size = 0;
-  String word = 'IMPORTANT';
+  int hints = 1;
+  String word = '';
   List pressalpha = [];
   List predletter = [];
   Widget Alphabutton(index) {
@@ -56,14 +91,38 @@ class _GameState extends State<Game> {
     );
   }
 
+  void Hints() {
+    if (hints == 1 && temp_size != word.length - 1) {
+      for (var i = 0; i < word.length; i++) {
+        if (predletter[i] == '') {
+          int index = alphabet.indexOf(word[i]);
+          setState(() {
+            predletter[i] = word[i];
+            pressed[index] = true;
+            hints = 0;
+            temp_size += 1;
+          });
+          break;
+        }
+      }
+    }
+  }
+
   void GameOver() {
-    Navigator.push(
+    Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => HomePage()));
+  }
+
+  void WordRandomizer(List words) {
+    int rand = Random().nextInt(words.length);
+    setState(() {
+      word = words[rand];
+    });
   }
 
   onpress(int index) {
     if (lives == 0) {
-      GameOver();
+      Timer(Duration(seconds: 1), () => GameOver());
     }
 
     setState(() {
@@ -77,6 +136,9 @@ class _GameState extends State<Game> {
         setState(() {
           predletter[i] = word[i];
           temp_size += 1;
+          if (temp_size == word.length - 1) {
+            hints = 0;
+          }
         });
       }
     }
@@ -84,21 +146,39 @@ class _GameState extends State<Game> {
     if (temp_size == word.length) {
       GameOver();
     }
-    print(predletter);
-    print(pressalpha);
     if (!check) {
       setState(() {
         lives -= 1;
+        hangstate += 1;
       });
       if (lives == 0) {
-        GameOver();
+        Timer(Duration(seconds: 2), () => GameOver());
       }
     }
   }
 
   void init() {
-    pressed = List.generate(26, (index) => false);
-    predletter = List.generate(word.length, (index) => '');
+    if (widget.level == 0) {
+      WordRandomizer(EasyWords);
+    } else if (widget.level == 1) {
+      WordRandomizer(MediumWords);
+    } else {
+      WordRandomizer(HardWords);
+    }
+    setState(() {
+      pressed = List.generate(26, (index) => false);
+      predletter = List.generate(word.length, (index) => '');
+      lives = 6;
+      hangstate = 0;
+      gameOver = false;
+      win = false;
+      temp_size = 0;
+      hints = 1;
+    });
+  }
+
+  void resetGame() {
+    init();
   }
 
   @override
@@ -109,126 +189,210 @@ class _GameState extends State<Game> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.deepPurple,
-      child: ListView(children: [
-        Image.asset('kj1.jpg'),
-        Wrap(
-          alignment: WrapAlignment.center,
-          children: [
-            ...(predletter).map((i) {
-              return PredLetterGrid(letter: i);
-            }),
-          ],
+    return SafeArea(
+      child: Scaffold(
+        body: Container(
+          color: Colors.deepPurple[700],
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(children: [
+                  Expanded(child: Lives(lives: lives)),
+                  IconButton(
+                      onPressed: () {
+                        Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(builder: (context) => HomePage()),
+                            (Route<dynamic> route) => false);
+                      },
+                      icon: Icon(Icons.exit_to_app, color: Colors.greenAccent))
+                ]),
+                Image.asset(
+                  'assets/$hangstate.png',
+                  height: 250,
+                ),
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  children: [
+                    ...(predletter).map((i) {
+                      return PredLetterGrid(letter: i);
+                    }),
+                  ],
+                ),
+                Container(
+                  padding: EdgeInsets.fromLTRB(10, 2, 8, 10),
+                  child: Column(
+                    children: [
+                      Table(
+                        defaultVerticalAlignment:
+                            TableCellVerticalAlignment.baseline,
+                        textBaseline: TextBaseline.alphabetic,
+                        children: [
+                          TableRow(children: [
+                            TableCell(
+                              child: Alphabutton(0),
+                            ),
+                            TableCell(
+                              child: Alphabutton(1),
+                            ),
+                            TableCell(
+                              child: Alphabutton(2),
+                            ),
+                            TableCell(
+                              child: Alphabutton(3),
+                            ),
+                            TableCell(
+                              child: Alphabutton(4),
+                            ),
+                            TableCell(
+                              child: Alphabutton(5),
+                            ),
+                            TableCell(
+                              child: Alphabutton(6),
+                            ),
+                          ]),
+                          TableRow(children: [
+                            TableCell(
+                              child: Alphabutton(7),
+                            ),
+                            TableCell(
+                              child: Alphabutton(8),
+                            ),
+                            TableCell(
+                              child: Alphabutton(9),
+                            ),
+                            TableCell(
+                              child: Alphabutton(10),
+                            ),
+                            TableCell(
+                              child: Alphabutton(11),
+                            ),
+                            TableCell(
+                              child: Alphabutton(12),
+                            ),
+                            TableCell(
+                              child: Alphabutton(13),
+                            ),
+                          ]),
+                          TableRow(children: [
+                            TableCell(
+                              child: Alphabutton(14),
+                            ),
+                            TableCell(
+                              child: Alphabutton(15),
+                            ),
+                            TableCell(
+                              child: Alphabutton(16),
+                            ),
+                            TableCell(
+                              child: Alphabutton(17),
+                            ),
+                            TableCell(
+                              child: Alphabutton(18),
+                            ),
+                            TableCell(
+                              child: Alphabutton(19),
+                            ),
+                            TableCell(
+                              child: Alphabutton(20),
+                            ),
+                          ]),
+                          TableRow(children: [
+                            TableCell(
+                              child: Text(''),
+                            ),
+                            TableCell(
+                              child: Alphabutton(21),
+                            ),
+                            TableCell(
+                              child: Alphabutton(22),
+                            ),
+                            TableCell(
+                              child: Alphabutton(23),
+                            ),
+                            TableCell(
+                              child: Alphabutton(24),
+                            ),
+                            TableCell(
+                              child: Alphabutton(25),
+                            ),
+                            TableCell(
+                              child: Text(''),
+                            ),
+                          ]),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ]),
         ),
-        Container(
-          padding: EdgeInsets.fromLTRB(10, 2, 8, 10),
-          child: Table(
-            defaultVerticalAlignment: TableCellVerticalAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
+        bottomNavigationBar: Container(
+          height: 60,
+          color: Colors.deepPurple,
+          child: Row(
             children: [
-              TableRow(children: [
-                TableCell(
-                  child: Alphabutton(0),
-                ),
-                TableCell(
-                  child: Alphabutton(1),
-                ),
-                TableCell(
-                  child: Alphabutton(2),
-                ),
-                TableCell(
-                  child: Alphabutton(3),
-                ),
-                TableCell(
-                  child: Alphabutton(4),
-                ),
-                TableCell(
-                  child: Alphabutton(5),
-                ),
-                TableCell(
-                  child: Alphabutton(6),
-                ),
-              ]),
-              TableRow(children: [
-                TableCell(
-                  child: Alphabutton(7),
-                ),
-                TableCell(
-                  child: Alphabutton(8),
-                ),
-                TableCell(
-                  child: Alphabutton(9),
-                ),
-                TableCell(
-                  child: Alphabutton(10),
-                ),
-                TableCell(
-                  child: Alphabutton(11),
-                ),
-                TableCell(
-                  child: Alphabutton(12),
-                ),
-                TableCell(
-                  child: Alphabutton(13),
-                ),
-              ]),
-              TableRow(children: [
-                TableCell(
-                  child: Alphabutton(14),
-                ),
-                TableCell(
-                  child: Alphabutton(15),
-                ),
-                TableCell(
-                  child: Alphabutton(16),
-                ),
-                TableCell(
-                  child: Alphabutton(17),
-                ),
-                TableCell(
-                  child: Alphabutton(18),
-                ),
-                TableCell(
-                  child: Alphabutton(19),
-                ),
-                TableCell(
-                  child: Alphabutton(20),
-                ),
-              ]),
-              TableRow(children: [
-                TableCell(
-                  child: Alphabutton(21),
-                ),
-                TableCell(
-                  child: Alphabutton(22),
-                ),
-                TableCell(
-                  child: Alphabutton(23),
-                ),
-                TableCell(
-                  child: Alphabutton(24),
-                ),
-                TableCell(
-                  child: Alphabutton(25),
-                ),
-                TableCell(
-                  child: Text(
-                    '',
-                    style: TextStyle(fontSize: 0),
+              Expanded(
+                  child: MaterialButton(
+                elevation: 10,
+                height: 1,
+                onPressed: hints == 1
+                    ? () {
+                        setState(() {
+                          Hints();
+                        });
+                      }
+                    : null,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.highlight_rounded,
+                        color: Colors.greenAccent,
+                      ),
+                      Text(
+                        'Hints',
+                        style: TextStyle(color: Colors.greenAccent),
+                      )
+                    ],
                   ),
                 ),
-                TableCell(
-                  child: Text(
-                    '',
-                    style: TextStyle(fontSize: 0),
+                color: Colors.deepPurpleAccent,
+              )),
+              SizedBox(
+                width: 5,
+              ),
+              Expanded(
+                  child: MaterialButton(
+                elevation: 10,
+                height: 1,
+                onPressed: () {
+                  setState(() {
+                    resetGame();
+                  });
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.replay_outlined,
+                        color: Colors.greenAccent,
+                      ),
+                      Text(
+                        'Reset Game',
+                        style: TextStyle(color: Colors.greenAccent),
+                      )
+                    ],
                   ),
                 ),
-              ]),
+                color: Colors.deepPurpleAccent,
+              ))
             ],
           ),
-        )
-      ]),
+        ),
+      ),
     );
   }
 }

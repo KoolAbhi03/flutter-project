@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
 
 class GameOverPage extends StatelessWidget {
-  const GameOverPage({Key? key}) : super(key: key);
+  final word;
+  const GameOverPage({Key? key, required this.word}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('HangMan'),
+        ),
+      ),
+    );
   }
 }

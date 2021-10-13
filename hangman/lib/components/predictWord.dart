@@ -2,23 +2,6 @@
 
 import 'package:flutter/material.dart';
 
-class PredictWord extends StatefulWidget {
-  final int len;
-  final List list;
-  const PredictWord({Key? key, required this.list, required this.len})
-      : super(key: key);
-
-  @override
-  _PredictWordState createState() => _PredictWordState();
-}
-
-class _PredictWordState extends State<PredictWord> {
-  @override
-  Widget build(BuildContext context) {
-    return GridView.builder(crossAxisCount: , children: abc);
-  }
-}
-
 class PredLetterGrid extends StatelessWidget {
   final letter;
   const PredLetterGrid({Key? key, required this.letter}) : super(key: key);
@@ -27,9 +10,34 @@ class PredLetterGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Card(
-        child: Column(
-          children: [Text(letter), const Text('___')],
+      child: SizedBox(
+        width: 60,
+        child: Card(
+          elevation: 5.0,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+          color: Colors.deepPurpleAccent,
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 4, 0, 0),
+                child: Text(
+                  letter,
+                  style: TextStyle(
+                      color: Colors.greenAccent,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 2),
+                child: const Text(
+                  '___',
+                  style: TextStyle(
+                      color: Colors.greenAccent, fontWeight: FontWeight.bold),
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );

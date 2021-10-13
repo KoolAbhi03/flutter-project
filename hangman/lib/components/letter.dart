@@ -13,8 +13,8 @@ class LetterGrid extends StatelessWidget {
     return Card(
         color: Colors.purple[50],
         child: SizedBox(
-          width: 50,
-          height: 20,
+          width: 35,
+          height: 35,
           child: MaterialButton(
             onPressed: onpress,
             child: Text(
