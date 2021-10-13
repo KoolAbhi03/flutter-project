@@ -109,8 +109,36 @@ class _GameState extends State<Game> {
   }
 
   void GameOver() {
-    Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => HomePage()));
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (context) {
+          return SimpleDialog(
+            backgroundColor: Colors.deepPurple,
+            title: Center(
+                child: Text(
+              "Game Over",
+              style: TextStyle(color: Colors.greenAccent, fontSize: 25),
+            )),
+            children: <Widget>[
+              Icon(
+                Icons.not_interested_sharp,
+                size: 60,
+                color: Colors.red,
+              ),
+              MaterialButton(
+                onPressed: () {},
+                child: Text('Reset Game',
+                    style: TextStyle(color: Colors.greenAccent, fontSize: 20)),
+              ),
+              MaterialButton(
+                onPressed: () {},
+                child: Text('Exit to Main Menu',
+                    style: TextStyle(color: Colors.greenAccent, fontSize: 20)),
+              ),
+            ],
+          );
+        });
   }
 
   void WordRandomizer(List words) {
@@ -122,7 +150,7 @@ class _GameState extends State<Game> {
 
   onpress(int index) {
     if (lives == 0) {
-      Timer(Duration(seconds: 1), () => GameOver());
+      GameOver();
     }
 
     setState(() {
