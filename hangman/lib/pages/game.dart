@@ -10,7 +10,7 @@ import 'package:hangman/pages/home.dart';
 import 'dart:math';
 
 class Game extends StatefulWidget {
-  final level;
+  final int level;
   const Game({Key? key, required this.level}) : super(key: key);
 
   @override
@@ -77,8 +77,6 @@ class _GameState extends State<Game> {
 
   int lives = 6;
   int hangstate = 0;
-  bool gameOver = false;
-  bool win = false;
   int temp_size = 0;
   int hints = 1;
   String word = '';
@@ -92,7 +90,7 @@ class _GameState extends State<Game> {
   }
 
   void Hints() {
-    if (hints == 1 && temp_size != word.length - 1) {
+    if (hints == 1 && temp_size != word.length - 1 && word.length > 4) {
       for (var i = 0; i < word.length; i++) {
         if (predletter[i] == '') {
           int index = alphabet.indexOf(word[i]);
@@ -106,6 +104,57 @@ class _GameState extends State<Game> {
         }
       }
     }
+  }
+
+  void WinGame() {
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (context) {
+          return SimpleDialog(
+            backgroundColor: Colors.deepPurple,
+            title: Center(
+                child: Text(
+              "Correct",
+              style: TextStyle(color: Colors.greenAccent, fontSize: 25),
+            )),
+            children: <Widget>[
+              Icon(
+                Icons.done,
+                size: 60,
+                color: Colors.greenAccent,
+              ),
+              Container(
+                  decoration: BoxDecoration(
+                      border: Border.all(color: Colors.greenAccent, width: 2),
+                      borderRadius: BorderRadius.circular(5)),
+                  child: MaterialButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Text('Play Again',
+                        style:
+                            TextStyle(color: Colors.greenAccent, fontSize: 20)),
+                  )),
+              SizedBox(height: 5),
+              Container(
+                decoration: BoxDecoration(
+                    border: Border.all(color: Colors.greenAccent, width: 2),
+                    borderRadius: BorderRadius.circular(5)),
+                child: MaterialButton(
+                  onPressed: () {
+                    Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (Context) => HomePage()),
+                        (route) => false);
+                  },
+                  child: Text('Exit to Main Menu',
+                      style:
+                          TextStyle(color: Colors.greenAccent, fontSize: 20)),
+                ),
+              ),
+            ],
+          );
+        });
   }
 
   void GameOver() {
@@ -126,15 +175,33 @@ class _GameState extends State<Game> {
                 size: 60,
                 color: Colors.red,
               ),
-              MaterialButton(
-                onPressed: () {},
-                child: Text('Reset Game',
-                    style: TextStyle(color: Colors.greenAccent, fontSize: 20)),
-              ),
-              MaterialButton(
-                onPressed: () {},
-                child: Text('Exit to Main Menu',
-                    style: TextStyle(color: Colors.greenAccent, fontSize: 20)),
+              Container(
+                  decoration: BoxDecoration(
+                      border: Border.all(color: Colors.greenAccent, width: 2),
+                      borderRadius: BorderRadius.circular(5)),
+                  child: MaterialButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Text('Play Again',
+                        style:
+                            TextStyle(color: Colors.greenAccent, fontSize: 20)),
+                  )),
+              SizedBox(height: 5),
+              Container(
+                decoration: BoxDecoration(
+                    border: Border.all(color: Colors.greenAccent, width: 2),
+                    borderRadius: BorderRadius.circular(5)),
+                child: MaterialButton(
+                  onPressed: () {
+                    Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (Context) => HomePage()),
+                        (route) => false);
+                  },
+                  child: Text('Exit to Main Menu',
+                      style:
+                          TextStyle(color: Colors.greenAccent, fontSize: 20)),
+                ),
               ),
             ],
           );
@@ -150,7 +217,12 @@ class _GameState extends State<Game> {
 
   onpress(int index) {
     if (lives == 0) {
+      resetGame();
       GameOver();
+    }
+    if (temp_size == word.length) {
+      resetGame();
+      WinGame();
     }
 
     setState(() {
@@ -172,7 +244,8 @@ class _GameState extends State<Game> {
     }
 
     if (temp_size == word.length) {
-      GameOver();
+      resetGame();
+      WinGame();
     }
     if (!check) {
       setState(() {
@@ -180,7 +253,8 @@ class _GameState extends State<Game> {
         hangstate += 1;
       });
       if (lives == 0) {
-        Timer(Duration(seconds: 2), () => GameOver());
+        resetGame();
+        GameOver();
       }
     }
   }
@@ -198,8 +272,6 @@ class _GameState extends State<Game> {
       predletter = List.generate(word.length, (index) => '');
       lives = 6;
       hangstate = 0;
-      gameOver = false;
-      win = false;
       temp_size = 0;
       hints = 1;
     });
@@ -364,7 +436,7 @@ class _GameState extends State<Game> {
                   child: MaterialButton(
                 elevation: 10,
                 height: 1,
-                onPressed: hints == 1
+                onPressed: hints == 1 && word.length > 4
                     ? () {
                         setState(() {
                           Hints();
